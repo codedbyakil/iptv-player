@@ -1,0 +1,32 @@
+name: Build APK
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      
+      - name: Build APK
+        run: |
+          cd app
+          chmod +x gradlew 2>/dev/null || true
+          # Create local.properties
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+          # Use gradle wrapper if exists, otherwise use system gradle
+          if [ -f gradlew ]; then ./gradlew assembleDebug; else gradle assembleDebug; fi
+      
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: app/build/outputs/apk/debug/*.apk
