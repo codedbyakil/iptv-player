@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">TamilFlix TV</string>
+    <string name="app_name">StreamFlix TV</string>
+    <string name="loading">Loading Channels...</string>
+    <string name="error_loading">Error Loading Channels</string>
+    <string name="search_hint">Search channels...</string>
+    <string name="featured_channel">Featured Channel</string>
+    <string name="all_groups">All</string>
 </resources>
