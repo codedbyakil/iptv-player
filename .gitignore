@@ -1,8 +1,38 @@
+```
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE
+.idea/
 *.iml
-.gradle
-/local.properties
-/.idea
-/build
-/captures
-*.apk
-*.ap_
+*.ipr
+*.iws
+.vscode/
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Dependencies
+node_modules/
+vendor/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Compiled files
+*.class
+*.jar
+*.war
+*.ear
+*.so
+*.dll
+*.dylib
+```
