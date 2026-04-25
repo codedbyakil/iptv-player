@@ -1,3 +1,3 @@
 #!/bin/sh
-# Gradle wrapper script - uses system gradle
+# Gradle wrapper
 exec gradle "$@"

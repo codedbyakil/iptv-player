@@ -1,6 +1,7 @@
 package com.tamilflix.iptv
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -16,22 +17,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
-import androidx.compose.ui.platform.LocalContext
-import android.widget.Toast
 import java.net.URL
 
-data class Channel(val name: String, val url: String, val group: String, val logoUrl: String?)
+data class Channel(
+    val name: String,
+    val url: String,
+    val group: String
+)
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme(colorScheme = darkColorScheme()) {
+            MaterialTheme(
+                colorScheme = darkColorScheme(),
+                typography = Typography()
+            ) {
                 TVApp()
             }
         }
@@ -52,18 +59,17 @@ fun TVApp() {
                 val content = URL(m3uUrl).readText()
                 val channelList = mutableListOf<Channel>()
                 var currentName = ""
-                var currentGroup = ""
-                var currentLogo: String? = null
+                var currentGroup = "Tamil Channels"
                 
                 for (line in content.lines()) {
                     when {
                         line.startsWith("#EXTINF:") -> {
                             currentName = line.substringAfterLast(",").trim()
+                            if (currentName.isEmpty()) currentName = "Unknown Channel"
                             currentGroup = Regex("group-title=\"([^\"]+)\"").find(line)?.groupValues?.get(1) ?: "Tamil Channels"
-                            currentLogo = Regex("tvg-logo=\"([^\"]+)\"").find(line)?.groupValues?.get(1)
                         }
                         line.startsWith("http") && currentName.isNotEmpty() -> {
-                            channelList.add(Channel(currentName, line.trim(), currentGroup, currentLogo))
+                            channelList.add(Channel(currentName, line.trim(), currentGroup))
                             currentName = ""
                         }
                     }
@@ -72,7 +78,7 @@ fun TVApp() {
                 isLoading = false
             } catch (e: Exception) {
                 isLoading = false
-                Toast.makeText(context, "Error loading channels: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -90,26 +96,33 @@ fun TVApp() {
         
         Column(modifier = Modifier.fillMaxSize().background(Color.Black).padding(24.dp)) {
             Text(
-                "TamilFlix TV", 
-                fontSize = 32.sp, 
-                fontWeight = FontWeight.Bold, 
+                "TamilFlix TV",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
                 color = Color(0xFFE50914),
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            
+            Text(
+                "${channels.size} Channels Available",
+                fontSize = 14.sp,
+                color = Color.Gray,
                 modifier = Modifier.padding(bottom = 24.dp)
             )
             
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(24.dp)) {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 grouped.forEach { (category, categoryChannels) ->
                     item {
                         Text(
-                            category, 
-                            fontSize = 20.sp, 
-                            fontWeight = FontWeight.SemiBold, 
+                            category,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold,
                             color = Color.White,
-                            modifier = Modifier.padding(bottom = 12.dp)
+                            modifier = Modifier.padding(bottom = 8.dp)
                         )
                     }
                     item {
-                        LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             items(categoryChannels) { channel ->
                                 ChannelCard(channel = channel, context = context)
                             }
@@ -123,53 +136,63 @@ fun TVApp() {
 
 @Composable
 fun ChannelCard(channel: Channel, context: android.content.Context) {
-    var isFocused by remember { mutableStateOf(false) }
-    
-    Column(
+    Card(
         modifier = Modifier
-            .width(200.dp)
-            .clickable { 
-                Toast.makeText(context, "Playing: ${channel.name}\n${channel.url.take(50)}...", Toast.LENGTH_LONG).show()
-            }
-            .clip(RoundedCornerShape(12.dp))
-            .background(if (isFocused) Color(0xFFE50914) else Color(0xFF1A1A1A))
-            .padding(12.dp)
+            .width(180.dp)
+            .clickable {
+                Toast.makeText(context, "Playing: ${channel.name}", Toast.LENGTH_SHORT).show()
+            },
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A))
     ) {
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(16f/9f)
-                .clip(RoundedCornerShape(8.dp))
-                .background(Color(0xFF2A2A2A)),
-            contentAlignment = Alignment.Center
+                .padding(12.dp)
         ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(16f/9f)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color(0xFF2A2A2A)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = channel.name.take(2).uppercase(),
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFE50914)
+                )
+            }
+            
             Text(
-                channel.name.take(2).uppercase(), 
-                fontSize = 28.sp, 
-                fontWeight = FontWeight.Bold, 
-                color = Color(0xFFE50914)
+                text = channel.name,
+                color = Color.White,
+                fontWeight = FontWeight.Medium,
+                fontSize = 14.sp,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            
+            Text(
+                text = channel.group,
+                fontSize = 11.sp,
+                color = Color.Gray,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
-        Text(
-            channel.name, 
-            color = Color.White, 
-            fontWeight = if (isFocused) FontWeight.Bold else FontWeight.Normal,
-            maxLines = 2, 
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(top = 8.dp)
-        )
-        Text(
-            channel.group, 
-            fontSize = 12.sp, 
-            color = Color.Gray, 
-            maxLines = 1
-        )
     }
 }
 
 @Composable
-fun darkColorScheme() = androidx.compose.material3.darkColorScheme(
+fun darkColorScheme() = darkColorScheme(
     primary = Color(0xFFE50914),
     background = Color.Black,
-    surface = Color(0xFF1A1A1A)
+    surface = Color(0xFF1A1A1A),
+    onPrimary = Color.White,
+    onBackground = Color.White,
+    onSurface = Color.White
 )
