@@ -2,16 +2,14 @@
 # Gradle
 .gradle/
 build/
-.libs/
+!gradle/wrapper/gradle-wrapper.jar
 
-# Dependencies
-node_modules/
-venv/
-.venv/
-__pycache__/
-*.egg-info/
-dist/
-target/
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
 
 # Logs
 *.log
@@ -21,60 +19,20 @@ target/
 .env.local
 *.env.*
 
-# Editors
-.vscode/
-.idea/
-*.swp
-*.swo
+# Dependencies
+node_modules/
+vendor/
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Coverage
-coverage/
-htmlcov/
-.coverage
-
-# Python
-*.pyc
-*.pyo
-*.pyd
-.Python
-*.so
-*.egg
-
-# Compiled
+# Compiled files
 *.class
-*.o
-*.obj
-*.out
-*.exe
-*.dll
+*.jar
+*.war
+*.ear
 *.so
-*.a
-
-# Compressed
-*.zip
-*.gz
-*.tar
-*.tgz
-*.bz2
-*.xz
-*.7z
-*.rar
-*.zst
-*.lz4
-*.lzh
-*.cab
-*.arj
-*.rpm
-*.deb
-*.Z
-*.lz
-*.lzo
-*.tar.gz
-*.tar.bz2
-*.tar.xz
-*.tar.zst
+*.dll
+*.dylib
 ```
